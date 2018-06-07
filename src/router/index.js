@@ -43,6 +43,12 @@ const Gallery = resolve => {
   });
 };
 
+const VideoPlayer = resolve => {
+  import('@/base/video-player/video-player').then(module => {
+    resolve(module);
+  });
+};
+
 Vue.use(Router);
 
 export default new Router({
@@ -94,6 +100,10 @@ export default new Router({
         {
           path: 'gallery',
           component: Gallery
+        },
+        {
+          path: 'player',
+          component: VideoPlayer
         }
       ]
     }
