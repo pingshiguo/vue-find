@@ -37,6 +37,12 @@ const Reading = resolve => {
   });
 };
 
+const Gallery = resolve => {
+  import('@/base/gallery/gallery').then(module => {
+    resolve(module);
+  });
+};
+
 Vue.use(Router);
 
 export default new Router({
@@ -84,6 +90,10 @@ export default new Router({
           path: 'reading/:bookId',
           component: Reading,
           props: true
+        },
+        {
+          path: 'gallery',
+          component: Gallery
         }
       ]
     }
