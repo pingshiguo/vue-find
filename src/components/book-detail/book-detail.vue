@@ -1,29 +1,26 @@
 <template>
-  <div class="book-detail">
+  <div v-loading="loading" class="book-detail">
     <div class="book__hd"></div>
     <div class="book__bd">
       <div class="media">
         <div class="media__hd">
-          <img src="https://qidian.qpic.cn/qdbimg/349573/1010734492/180"
+          <img :src="book.logoPics"
                class="media__thumb" alt="">
         </div>
         <div class="media__bd">
-          <h2 class="media__title">凡人修仙之仙界篇 <span>忘语 著</span></h2>
+          <h2 class="media__title">{{book.name}} <span>{{book.author}} 著</span>
+          </h2>
           <p class="book__tags">
             <el-tag size="medium" color="white">连载</el-tag>
             <el-tag size="medium" color="white">签约</el-tag>
-            <el-tag size="medium" color="white">VIP</el-tag>
             <el-tag size="medium" color="white">仙侠</el-tag>
             <el-tag size="medium" color="white">神话修真</el-tag>
-          </p>
-          <p class="media__desc">
-            修仙觅长生，热血任逍遥，踏莲曳波涤剑骨，凭虚御风塑圣魂！
           </p>
           <p class="media__meta">
             97.98万字|2139.89万总点击·会员周点击58.54万|678.8万总推荐·周10.26万
           </p>
           <div class="btn-area">
-            <router-link to="/reading/12345678901" class="btn">
+            <router-link :to="'/reading/' + bookId" class="btn">
               免费试读
             </router-link>
           </div>
@@ -32,59 +29,20 @@
 
       <h2 class="book__title">作品信息</h2>
       <p class="book__intro">
-        凡人修仙，风云再起<br>
-        时空穿梭，轮回逆转<br>
-        金仙太乙，大罗道祖<br>
-        三千大道，法则至尊<br>
-        《凡人修仙传》仙界篇，一个韩立叱咤仙界的故事，一个凡人小子修仙的不灭传说。<br>
-        特说明下，没有看过前传的书友，并不影响本书的阅读体验，但感兴趣的书友，也可以先去看看《凡人修仙传》，再来看本书哦。
+        {{book.fictionSynopsis}}
       </p>
 
       <h2 class="book__title">章节目录</h2>
       <div class="catalog-container">
         <div class="book__catalog">
-          <h2 class="catalog__title">作品相关·共2章</h2>
+          <!--<h2 class="catalog__title">作品相关·共2章</h2>-->
           <ul class="catalog-list">
-            <li class="catalog-list__item">第一章 狐女</li>
-            <li class="catalog-list__item">第一章 狐女</li>
-            <li class="catalog-list__item">第一章 狐女</li>
-            <li class="catalog-list__item">第一章 狐女</li>
-            <li class="catalog-list__item">第一章 狐女</li>
-            <li class="catalog-list__item">第一章 狐女</li>
-          </ul>
-        </div>
-        <div class="book__catalog">
-          <h2 class="catalog__title">重回仙界·共2章</h2>
-          <ul class="catalog-list">
-            <li class="catalog-list__item">第一章 狐女</li>
-            <li class="catalog-list__item">第一章 狐女</li>
-            <li class="catalog-list__item">第一章 狐女</li>
-            <li class="catalog-list__item">第一章 狐女</li>
-            <li class="catalog-list__item">第一章 狐女</li>
-            <li class="catalog-list__item">第一章 狐女</li>
-          </ul>
-        </div>
-        <div class="book__catalog">
-          <h2 class="catalog__title">重回仙界·共2章</h2>
-          <ul class="catalog-list">
-            <li class="catalog-list__item">第一章 狐女</li>
-            <li class="catalog-list__item">第一章 狐女</li>
-            <li class="catalog-list__item">第一章 狐女</li>
-            <li class="catalog-list__item">第一章 狐女</li>
-            <li class="catalog-list__item">第一章 狐女</li>
-            <li class="catalog-list__item">第一章 狐女</li>
-            <li class="catalog-list__item">第一章 狐女</li>
-            <li class="catalog-list__item">第一章 狐女</li>
-            <li class="catalog-list__item">第一章 狐女</li>
-            <li class="catalog-list__item">第一章 狐女</li>
-            <li class="catalog-list__item">第一章 狐女</li>
-            <li class="catalog-list__item">第一章 狐女</li>
-            <li class="catalog-list__item">第一章 狐女</li>
-            <li class="catalog-list__item">第一章 狐女</li>
-            <li class="catalog-list__item">第一章 狐女</li>
-            <li class="catalog-list__item">第一章 狐女</li>
-            <li class="catalog-list__item">第一章 狐女</li>
-            <li class="catalog-list__item">第一章 狐女</li>
+            <li v-for="item in catalogList"
+                :key="item.id"
+                class="catalog-list__item"
+                @click="selectItem(item.id)">
+              {{item.title}}
+            </li>
           </ul>
         </div>
       </div>
@@ -93,11 +51,45 @@
 </template>
 
 <script>
+  import { getBook } from '../../api/page';
+  import { ERR_OK } from '../../api/config';
+
   export default {
     name: 'book-detail',
     props: {
       bookId: {
         type: String
+      }
+    },
+    data () {
+      return {
+        loading: true,
+        book: {
+          parentId: -1,
+          id: -1,
+          name: '',
+          author: '',
+          fictionSynopsis: '',
+          logoPic: ''
+        },
+        catalogList: []
+      };
+    },
+    created () {
+      this._getBook(Number(this.bookId));
+    },
+    methods: {
+      selectItem (catalogId) {
+        this.$router.push(`/reading/${this.bookId}/${catalogId}`);
+      },
+      _getBook (bookId) {
+        getBook(bookId).then(res => {
+          if (res.code === ERR_OK) {
+            this.loading = false;
+            Object.assign(this.book, res.data[0]);
+            this.catalogList = [...res.data];
+          }
+        });
       }
     }
   };
@@ -133,6 +125,7 @@
     margin-right: 20px
 
   .media__bd
+    flex: 1
     min-width: 0
 
   .media__thumb
@@ -216,4 +209,5 @@
     line-height: 32px
     font-size: 14px
     color: #666
+    cursor: pointer
 </style>

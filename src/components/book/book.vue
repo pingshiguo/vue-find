@@ -1,65 +1,34 @@
 <template>
   <el-main v-loading="loading">
-    <div v-if="" ref="container" class="el-media-container">
-      <router-link v-for="item in novelList"
-                   :to="'/book/' + item.id"
-                   class="el-media-wrapper">
+    <div v-if="books.length > 0" ref="container" class="el-media-container">
+      <div v-for="item in books"
+           :key="item.id"
+           class="el-media-wrapper"
+           @click="selectBook(item.id)">
         <div class="el-media">
           <div class="el-media__hd">
-            <img :src="item.pic_url" :alt="item.name">
+            <img :src="item.logoPic" :alt="item.name">
           </div>
           <div class="el-media__bd">
             <h2 class="el-media__title">{{item.name}}</h2>
             <p class="el-media__meta">
-              {{item.author}} {{item.tag}} {{item.status}}
+              {{item.author}} {{item.tag}} {{item.statusName}}
             </p>
-            <p class="el-media__desc">{{item.intro}}</p>
+            <p class="el-media__desc">{{item.fictionSynopsis}}</p>
             <p class="el-media__meta">{{item.font_total}}</p>
           </div>
         </div>
-      </router-link>
+      </div>
     </div>
-    <router-view></router-view>
+    <keep-alive>
+      <router-view></router-view>
+    </keep-alive>
   </el-main>
 </template>
 
 <script>
-
-  const NOVEL_LIST = [
-    {
-      id: '122312',
-      name: '真武世界',
-      author: '蚕茧里的牛',
-      intro:
-        '卷入了三十三天所有巅峰强者的一场浩劫，人皇与他的对手最终一战，打碎了深渊世界，曾经封镇深渊魔王的神器，一张神秘的紫色卡片，却消失在时空漩涡中，横穿无尽的时空。辽阔的蛮荒，武道文明还处于初始阶段，正在缓',
-      pic_url: 'https://qidian.qpic.cn/qdbimg/349573/3621897/150',
-      status: '连载中',
-      tag: '玄幻 东方玄幻',
-      font_total: '365.28万字'
-    },
-    {
-      id: '12233',
-      name: '真武世界',
-      author: '蚕茧里的牛',
-      intro:
-        '卷入了三十三天所有巅峰强者的一场浩劫，人皇与他的对手最终一战，打碎了深渊世界，曾经封镇深渊魔王的神器，一张神秘的紫色卡片，却消失在时空漩涡中，横穿无尽的时空。辽阔的蛮荒，武道文明还处于初始阶段，正在缓',
-      pic_url: 'https://qidian.qpic.cn/qdbimg/349573/3621897/150',
-      status: '连载中',
-      tag: '玄幻 东方玄幻',
-      font_total: '365.28万字'
-    },
-    {
-      id: '1223268',
-      name: '真武世界',
-      author: '蚕茧里的牛',
-      intro:
-        '卷入了三十三天所有巅峰强者的一场浩劫，人皇与他的对手最终一战，打碎了深渊世界，曾经封镇深渊魔王的神器，一张神秘的紫色卡片，却消失在时空漩涡中，横穿无尽的时空。辽阔的蛮荒，武道文明还处于初始阶段，正在缓',
-      pic_url: 'https://qidian.qpic.cn/qdbimg/349573/3621897/150',
-      status: '连载中',
-      tag: '玄幻 东方玄幻',
-      font_total: '365.28万字'
-    }
-  ];
+  import { getBooks } from '../../api/page';
+  import { ERR_OK } from '../../api/config';
 
   export default {
     name: 'page-book',
@@ -71,39 +40,42 @@
     data () {
       return {
         loading: true,
-        novelList: [],
+        books: [],
         isPullUpLoading: false,
         triggerDistance: 200
       };
     },
+    // watch: {
+    //   categoryId (categoryId) {
+    //     if (categoryId !== '') {
+    //       this._getBooks(categoryId);
+    //     }
+    //   }
+    // },
     created () {
-      this.novelList = [...NOVEL_LIST];
-      this.novelList.push(...NOVEL_LIST);
-      this.novelList.push(...NOVEL_LIST);
-    },
-    mounted () {
-      this.loading = false;
+      if (!this.categoryId) {
+        this.$emit('selectCategory');
+      }
 
-      window.addEventListener('scroll', this.initOnScrollEnd, true);
+      this._getBooks(this.categoryId);
     },
+    mounted () {},
     methods: {
-      initOnScrollEnd () {
-        console.log('start');
-        let distance = this.$refs.container.getBoundingClientRect().bottom -
-          window.innerHeight;
+      selectBook (bookId) {
+        this.$router.push({
+          path: `/book/${bookId}`
+        });
+      },
+      _getBooks (categoryId) {
+        getBooks(categoryId).then(res => {
+          if (res.code === ERR_OK) {
+            this.loading = false;
 
-        if (!this.isPullUpLoading && distance <= this.triggerDistance) {
-          this.isPullUpLoading = true;
+            this.books = [...res.data];
 
-          if (this.timeout) clearTimeout(this.timeout);
-
-          this.timeout = setTimeout(() => {
-            this.novelList.push(...NOVEL_LIST);
-            this.isPullUpLoading = false;
-            console.log('scroll event');
-            console.log('end');
-          }, 20);
-        }
+            console.log(this.books);
+          }
+        });
       }
     }
   };
@@ -122,6 +94,7 @@
         display: flex
         align-items: center
         background: #fff
+        cursor: pointer
         .el-media__hd
           flex: 0 0 100px
           width: 100px

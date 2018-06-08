@@ -10,3 +10,113 @@ export function getPageInfo () {
     return Promise.resolve(res.data);
   });
 }
+
+export function getImages (categoryId) {
+  const url = '/nrClassifyShowResource/listsPicture';
+
+  return axios.get(url, {
+    params: {
+      classifyShowId: categoryId
+    }
+  }).then(res => {
+    return Promise.resolve(res.data);
+  });
+}
+
+export function getVideos (categoryId) {
+  const url = '/nrClassifyShowResource/listsVideo';
+
+  return axios.get(url, {
+    params: {
+      classifyShowId: categoryId
+    }
+  }).then(res => {
+    return Promise.resolve(res.data);
+  });
+}
+
+export function getBooks (categoryId) {
+  const url = '/nrClassifyShowResource//listsFiction';
+
+  return axios.get(url, {
+    params: {
+      classifyShowId: categoryId
+    }
+  }).then(res => {
+    return Promise.resolve(res.data);
+  });
+}
+
+export function getGallery (galleryId) {
+  const url = '/nrPictureResourceText/getAllChapter';
+
+  return axios.get(url, {
+    params: {
+      classifyShowResourceId: galleryId
+    }
+  }).then(res => {
+    return Promise.resolve(res.data);
+  });
+}
+
+export function getVideo (videoId) {
+  const url = '/nrVideoResourceText/getAllChapter';
+
+  return axios.get(url, {
+    params: {
+      classifyShowResourceId: videoId
+    }
+  }).then(res => {
+    return Promise.resolve(res.data);
+  });
+}
+
+export function getBook (bookId) {
+  const url = '/nrFictionResourceText/getAllChapter';
+
+  return axios.get(url, {
+    params: {
+      classifyShowResourceId: bookId
+    }
+  }).then(res => {
+    return Promise.resolve(res.data);
+  });
+}
+
+export function getBookCatalog (catalogId) {
+  const url = '/nrFictionResourceText/resource';
+
+  return axios.get(url, {
+    params: {
+      id: catalogId
+    }
+  }).then(res => {
+    return Promise.resolve(res.data);
+  });
+}
+
+export function goPreCatalog (bookId, catalogId) {
+  const url = '/nrFictionResourceText/getFictionUp';
+
+  return axios.get(url, {
+    params: {
+      id: bookId,
+      classifyShowResourceId: catalogId
+    }
+  }).then(res => {
+    return Promise.resolve(res.data);
+  });
+}
+
+export function goNextCatalog (bookId, catalogId) {
+  const url = '/nrFictionResourceText/getFictionDown';
+
+  return axios.get(url, {
+    params: {
+      id: bookId,
+      classifyShowResourceId: catalogId
+    }
+  }).then(res => {
+    return Promise.resolve(res.data);
+  });
+}

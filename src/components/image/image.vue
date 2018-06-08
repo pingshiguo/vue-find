@@ -1,37 +1,32 @@
 <template>
-  <el-main v-loading="loading">
+  <el-main>
     <div class="grid-container">
-      <el-row>
-        <el-col>
-          <div class="el-grid are-images-unloaded">
-            <div class="el-grid-sizer"></div>
-            <div class="el-grid-gutter-sizer"></div>
-            <div v-for="item in imageList" class="el-grid-item">
-              <img
-                :src="getImagePath(item)" :alt="item">
-            </div>
-          </div>
-        </el-col>
-      </el-row>
+      <div class="el-grid are-images-unloaded">
+        <div class="el-grid-sizer"></div>
+        <div class="el-grid-gutter-sizer"></div>
+        <div v-for="item in images"
+             class="el-grid-item"
+             @click="selectGallery(item.classifyShowResourceId)">
+          <img
+            :src="item.resource" :alt="item.name">
+          <p class="grid__title">
+            {{item.name}}
+            <span v-if="item.sum > 0"
+                  class="gallery-total">{{ '共' + item.sum + '张'}}</span>
+          </p>
+        </div>
+      </div>
     </div>
+    <router-view></router-view>
   </el-main>
 </template>
 
 <script>
   import Masonry from 'masonry-layout';
   import ImagesLoaded from 'imagesloaded';
-  import InfiniteScroll from 'infinite-scroll';
 
-  const IMAGE_LIST = [
-    'flight-formation.jpg',
-    'golden-hour.jpg',
-    'contrail.jpg',
-    'cat-nose.jpg',
-    'drizzle.jpg',
-    'look-out.jpg',
-    'submerged.jpg',
-    'orange-tree.jpg'
-  ];
+  import { getImages } from '../../api/page';
+  import { ERR_OK } from '../../api/config';
 
   export default {
     name: 'page-image',
@@ -42,40 +37,30 @@
     },
     data () {
       return {
-        loading: true,
-        imageList: []
+        images: []
       };
     },
+    watch: {
+      categoryId (categoryId) {
+        if (categoryId) {
+          this._getImages(this.categoryId);
+        }
+      }
+    },
     created () {
-      this.imageList = [...IMAGE_LIST];
-    },
-    mounted () {
-      this.$nextTick(() => {
-        const masonry = this.initMasonry();
+      if (!this.categoryId) {
+        this.$emit('selectCategory');
+      }
 
-        this.initImage(masonry);
-
-        // this.initInfiniteScroll(masonry);
-      });
+      this._getImages(this.categoryId);
     },
+    mounted () {},
     methods: {
-      getImagePath (name) {
-        return `https://s3-us-west-2.amazonaws.com/s.cdpn.io/82/${name}`;
-      },
-      initInfiniteScroll (masonry) {
-        const infiniteScroll = new InfiniteScroll('.el-grid', {
-          path: 'http://localhost:8080/#/desktop',
-          append: '.el-grid-item',
-          outlayer: masonry,
-          status: '.page-load-status'
-        });
-
-        console.log(infiniteScroll);
+      selectGallery (galleryId) {
+        this.$router.push(`/image/${galleryId}`);
       },
       initImage (masonry) {
         const imgLoad = new ImagesLoaded('.el-grid', (instance, image) => {
-          this.loading = false;
-
           const grid = instance.elements[0];
           grid.classList.remove('are-images-unloaded');
 
@@ -94,6 +79,20 @@
           // nicer reveal transition
           visibleStyle: {transform: 'translateY(0)', opacity: 1},
           hiddenStyle: {transform: 'translateY(100px)', opacity: 0}
+        });
+      },
+      _getImages (categoryId) {
+        getImages(categoryId).then(res => {
+          if (res.code === ERR_OK) {
+            this.images = [...res.data];
+
+            this.$nextTick(() => {
+              const masonry = this.initMasonry();
+              this.initImage(masonry);
+            });
+
+            console.log(this.images);
+          }
         });
       }
     }
@@ -123,11 +122,27 @@
 
   .el-grid-item
     float: left
+    position: relative
     width: 22%
     margin-bottom: 20px
+    cursor: pointer
     img
       display: block
       width: 100%
+
+  .grid__title
+    position: absolute
+    right: 0
+    bottom: 0
+    left: 0
+    padding: 0 8px
+    line-height: 24px
+    font-size: 12px
+    color: #fff
+    background: rgba(0, 0, 0, .5)
+
+  .gallery-total
+    float: right
 
   @media (max-width: 768px)
     .el-grid-sizer, .el-grid-item

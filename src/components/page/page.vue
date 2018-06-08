@@ -9,35 +9,38 @@
                 <h1 class="logo">发现</h1>
               </router-link>
             </el-col>
-            <el-col :xs="18" :sm="12">
+            <el-col :xs="18" :sm="20">
               <div class="nav">
-                <router-link v-for="(item, index) in navMenuList"
-                             :to="getPath(index)"
+                <router-link v-for="item in pageInfo"
+                             :key="item.id"
+                             :to="getRouterPath(item.id)"
                              class="nav__item">
                   {{item.name}}
                 </router-link>
               </div>
             </el-col>
-            <el-col :sm="8">
-              <el-input
-                placeholder="搜索电影、小说">
-                <i slot="prefix" class="el-input__icon el-icon-search"></i>
-              </el-input>
-            </el-col>
+            <!--<el-col :sm="8">-->
+              <!--<el-input-->
+                <!--placeholder="搜索电影、小说">-->
+                <!--<i slot="prefix" class="el-input__icon el-icon-search"></i>-->
+              <!--</el-input>-->
+            <!--</el-col>-->
           </el-row>
         </div>
       </el-header>
-      <div v-if="categoryItems.length > 0" class="tab-wrapper">
+      <div v-if="category.length > 0" class="tab-wrapper">
         <div class="tab">
-          <router-link v-for="item in categoryItems"
-                       :to="getCategoryPath(item.id)"
-                       class="tab__item">
+          <div v-for="item in category"
+               :key="item.id"
+               class="tab__item"
+               :class="getTabStyle(item.id)"
+               @click="selectCategory(item.id)">
             {{item.name}}
-          </router-link>
+          </div>
         </div>
       </div>
       <keep-alive>
-        <router-view></router-view>
+        <router-view @selectCategory="selectCategory"></router-view>
       </keep-alive>
     </el-container>
   </div>
@@ -47,120 +50,72 @@
   import { getPageInfo } from '../../api/page';
   import { ERR_OK } from '../../api/config';
 
-  const NAV_MENU_LIST = [
-    {
-      'items': [
-        {
-          'createTime': '',
-          'id': 2,
-          'name': '壁纸类',
-          'pid': 1,
-          'pids': '[0],[1],',
-          'sort': 2
-        }, {
-          'createTime': '',
-          'id': 3,
-          'name': '头像类',
-          'pid': 1,
-          'pids': '[0],[1],',
-          'sort': 3
-        }
-      ],
-      'name': '图片',
-      'pid': 0,
-      'sort': 1
-    },
-    {
-      'items': [
-        {
-          'createTime': '',
-          'id': 5,
-          'name': '科幻',
-          'pid': 4,
-          'pids': '[0],[4],',
-          'sort': 5
-        }
-      ],
-      'name':
-        '视频',
-      'pid': 0,
-      'sort': 4
-    },
-    {
-      'items': [
-        {
-          'createTime': '2018-06-04 09:53:43',
-          'id': 11,
-          'name': '斗破苍穹',
-          'pid': 10,
-          'pids': '[0],[10],',
-          'sort': 8
-        }, {
-          'createTime': '2018-06-04 14:05:05',
-          'id': 12,
-          'name': '盗墓笔记',
-          'pid': 10,
-          'pids': '[0],[10],',
-          'sort': 1
-        }
-      ],
-      'name': '小说',
-      'pid': 0,
-      'sort': 7
-    }
-  ];
-  const ROUTER_MAP = [
-    '/image',
-    '/video',
-    '/book'
-  ];
+  const ROUTER_MAP = new Map([
+    ['image', 1],
+    ['video', 4],
+    ['book', 10]
+  ]);
 
   export default {
     name: 'page',
     data () {
       return {
-        navMenuList: []
+        pageInfo: [],
+        category: []
       };
     },
     computed: {
-      categoryItems () {
-        if (this.navMenuList.length === 0) {
-          return [];
-        }
-
-        let path = this.$route.path.split('/');
-        let routerIndex = -1;
-
-        if (path.length > 2) {
-          routerIndex = ROUTER_MAP.indexOf('/' + path[1]);
-        } else {
-          routerIndex = ROUTER_MAP.indexOf(this.$route.path);
-        }
-
-        if (routerIndex === -1) {
-          return [];
-        }
-
-        return [...this.navMenuList[routerIndex]['items']];
+      categoryId () {
+        return this.$route.query.category;
       }
     },
     created () {
-      // this.navMenuList = [...NAV_MENU_LIST];
       this._getPageInfo();
     },
+    mounted () {},
     methods: {
-      getCategoryPath (id) {
-        let path = this.$route.path.split('/')[1];
-        return `/${path}/category/${id}`;
+      selectCategory (categoryId) {
+        if (!categoryId) {
+          categoryId = this.category[0].id;
+        }
+
+        this.$router.push(`${this.$route.path}?category=${categoryId}`);
       },
-      getPath (index) {
-        return ROUTER_MAP[index];
+      getTabStyle (categoryId) {
+        if (Number(this.categoryId) === categoryId) {
+          return 'active';
+        }
+
+        return '';
+      },
+      getRouterPath (routerId) {
+        for (let key of ROUTER_MAP.keys()) {
+          if (ROUTER_MAP.get(key) === routerId) {
+            return `/${key}`;
+          }
+        }
+      },
+      getRouterId (path) {
+        return ROUTER_MAP.get(path);
+      },
+      getCategory (data) {
+        let path = this.$route.path.split('/')[1];
+        let routerId = this.getRouterId(path);
+
+        for (let item of data) {
+          if (item.id === routerId) {
+            this.category = item.items;
+            return;
+          }
+        }
       },
       _getPageInfo () {
         getPageInfo().then(res => {
           if (res.code === ERR_OK) {
-            this.navMenuList = [...res.data];
-            console.log(res.data);
+            this.pageInfo = [...res.data];
+            this.getCategory([...res.data]);
+
+            console.log(this.pageInfo);
           }
         });
       }
@@ -231,6 +186,9 @@
     padding: 0 8px
     line-height: 36px
     font-size: 14px
+    cursor: pointer
+    &.active
+      color: #333
 
   @media (max-width: 768px)
     .logo

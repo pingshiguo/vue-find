@@ -38,13 +38,13 @@ const Reading = resolve => {
 };
 
 const Gallery = resolve => {
-  import('@/base/gallery/gallery').then(module => {
+  import('@/components/gallery/gallery').then(module => {
     resolve(module);
   });
 };
 
 const VideoPlayer = resolve => {
-  import('@/base/video-player/video-player').then(module => {
+  import('@/components/video-player/video-player').then(module => {
     resolve(module);
   });
 };
@@ -60,7 +60,15 @@ export default new Router({
       children: [
         {
           path: 'image',
-          component: Image
+          component: Image,
+          props: (route) => ({categoryId: route.query.category}),
+          children: [
+            {
+              path: ':galleryId',
+              component: Gallery,
+              props: true
+            }
+          ]
         },
         {
           path: 'image/category/:categoryId',
@@ -69,7 +77,15 @@ export default new Router({
         },
         {
           path: 'video',
-          component: Video
+          component: Video,
+          props: (route) => ({categoryId: route.query.category}),
+          children: [
+            {
+              path: ':videoId',
+              component: VideoPlayer,
+              props: true
+            }
+          ]
         },
         {
           path: 'video/category/:categoryId',
@@ -84,6 +100,7 @@ export default new Router({
         {
           path: 'book',
           component: Book,
+          props: (route) => ({categoryId: route.query.category}),
           children: [
             {
               path: ':bookId',
@@ -95,15 +112,14 @@ export default new Router({
         {
           path: 'reading/:bookId',
           component: Reading,
-          props: true
-        },
-        {
-          path: 'gallery',
-          component: Gallery
-        },
-        {
-          path: 'player',
-          component: VideoPlayer
+          props: true,
+          children: [
+            {
+              path: ':catalogId',
+              component: Reading,
+              props: true
+            }
+          ]
         }
       ]
     }
