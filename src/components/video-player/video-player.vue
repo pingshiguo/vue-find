@@ -1,22 +1,26 @@
 <template>
   <div class="video-player">
-    <div class="video-player__bd">
-      <div class="player-banner">
-        <div class="swiper-container player-swiper">
-          <div class="swiper-wrapper">
-            <a v-for="item in banners"
-               :key="item.id"
-               :href="item.hyperlink"
-               class="swiper-slide">
-              <img
-                :src="item.resource"
-                :title="item.title"
-                :alt="item.title">
-            </a>
-          </div>
+    <div class="video-player__hd">
+      <go-back></go-back>
+    </div>
+
+    <div class="player-banner">
+      <div class="swiper-container player-swiper">
+        <div class="swiper-wrapper">
+          <a v-for="item in banners"
+             :key="item.id"
+             :href="item.hyperlink"
+             class="swiper-slide">
+            <img
+              :src="item.resource"
+              :title="item.title"
+              :alt="item.title">
+          </a>
         </div>
       </div>
+    </div>
 
+    <div class="video-player__bd">
       <div class="video-container">
         <div class="video-wrapper">
           <video
@@ -49,9 +53,11 @@
 
   import Swiper from 'swiper';
   import 'swiper/dist/css/swiper.min.css';
+  import GoBack from '../../base/go-back/go-back';
 
   export default {
     name: 'video-player',
+    components: {GoBack},
     props: {
       videoId: {
         type: String
@@ -68,12 +74,15 @@
       this._getVideo(this.videoId);
     },
     methods: {
-      initSwiper (swiperId, len) {
+      initSwiper (swiperId, len, speed = 300) {
         return new Swiper(swiperId, {
+          speed,
           loop: true,
           autoplay: true,
           loopedSlides: len,
-          slidesPerView: 'auto'
+          slidesPerView: 'auto',
+          observer: true,
+          observeParents: true
         });
       },
       selectItem (url) {
@@ -87,7 +96,7 @@
 
             this.banners = [...res.data.ad];
             this.$nextTick(() => {
-              this.initSwiper('.player-swiper', this.banners.length);
+              this.initSwiper('.player-swiper', this.banners.length, this.banners[0].timeSpeed);
             });
           }
         });
@@ -99,7 +108,7 @@
 <style lang="stylus" rel="stylesheet/stylus" scoped>
 
   .video-player
-    position: absolute
+    position: fixed
     top: 0
     right: 0
     bottom: 0
@@ -108,13 +117,17 @@
     padding: 20px
     overflow: auto
     -webkit-overflow-scrolling: touch
-    background: #f6f6f6
+    background: #999
 
-  .video-player__bd
-    display: flex
-    max-width: 960px
-    height: 100%
-    margin: auto
+  .video-player__hd
+    position: absolute
+    top: 0
+    right: 0
+    boottom: 0
+    left: 0
+    z-index: 200
+    display: none
+    height: 45px
 
   .player-banner
     position: absolute
@@ -130,6 +143,12 @@
           margin: 0 10px
           img
             width: 220px
+
+  .video-player__bd
+    display: flex
+    max-width: 960px
+    height: 100%
+    margin: auto
 
   .video-container
     position: relative
@@ -166,6 +185,12 @@
       color: #333
 
   @media (max-width: 768px)
+    .video-player__hd
+      display: block
+
+    .player-banner
+      top: 45px
+
     .video-container
       flex-direction: column
 

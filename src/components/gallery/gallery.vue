@@ -1,6 +1,10 @@
 <template>
   <transition name="popup">
     <div class="gallery">
+      <div class="gallery__hd">
+        <go-back></go-back>
+      </div>
+
       <div class="gallery-banner">
         <div class="swiper-container gallery-swiper">
           <div class="swiper-wrapper">
@@ -32,9 +36,11 @@
 
   import Swiper from 'swiper';
   import 'swiper/dist/css/swiper.min.css';
+  import GoBack from '../../base/go-back/go-back';
 
   export default {
     name: 'gallery',
+    components: {GoBack},
     props: {
       galleryId: {
         type: String
@@ -54,12 +60,15 @@
 
     },
     methods: {
-      initSwiper (swiperId, len) {
+      initSwiper (swiperId, len, speed = 300) {
         return new Swiper(swiperId, {
+          speed,
           loop: true,
           autoplay: true,
           loopedSlides: len,
-          slidesPerView: 'auto'
+          slidesPerView: 'auto',
+          observer: true,
+          observeParents: true
         });
       },
       goPre () {
@@ -91,10 +100,8 @@
 
             this.banners = [...res.data.ad];
             this.$nextTick(() => {
-              this.initSwiper('.gallery-swiper', this.banners.length);
+              this.initSwiper('.gallery-swiper', this.banners.length, this.banners[0].timeSpeed);
             });
-
-            console.log(this.gallery);
           }
         });
       }
@@ -122,8 +129,20 @@
     overflow: hidden
     background: rgba(0, 0, 0, 1)
 
+  .gallery__hd
+    position: absolute
+    top: 0
+    right: 0
+    left: 0
+    z-index: 200
+    display: none
+    height: 45px
+
   .gallery-banner
-    width: 100%
+    position: absolute
+    top: 0
+    right: 0
+    left: 0
     .gallery-swiper
       width: 100%
       .swiper-wrapper
@@ -140,7 +159,7 @@
     right: 0
     bottom: 0
     left: 0
-    margin: 32px 0
+    margin: 45px 0
     background: center center no-repeat
     background-size: contain
     opacity: 0
@@ -180,4 +199,11 @@
       border-top: 2px solid #fff
       border-right: 2px solid #fff
       transform: translateY(-50%) rotate(45deg)
+
+  @media (max-width: 768px)
+    .gallery__hd
+      display: block
+
+    .gallery-banner
+      top: 45px
 </style>

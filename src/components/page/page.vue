@@ -11,10 +11,11 @@
             </el-col>
             <el-col :xs="18" :sm="20">
               <div class="nav">
-                <router-link v-for="item in pageInfo"
-                             :key="item.id"
-                             :to="getRouterPath(item.id)"
-                             class="nav__item">
+                <router-link
+                  v-for="item in pageInfo"
+                  :key="item.id"
+                  :to="getRouterPath(item.id)"
+                  class="nav__item">
                   {{item.name}}
                 </router-link>
               </div>
@@ -22,6 +23,7 @@
           </el-row>
         </div>
       </el-header>
+
       <div v-if="getCategory(pageInfo).length > 0" class="tab-wrapper">
         <div class="tab">
           <div v-for="item in getCategory(pageInfo)"
@@ -33,9 +35,8 @@
           </div>
         </div>
       </div>
-      <keep-alive>
-        <router-view></router-view>
-      </keep-alive>
+
+      <router-view></router-view>
     </el-container>
   </div>
 </template>
@@ -43,13 +44,7 @@
 <script>
   import { getPageInfo } from '../../api/page';
   import { ERR_OK } from '../../api/config';
-
-  const ROUTER_MAP = new Map([
-    ['image', 1],
-    ['video', 4],
-    ['book', 10],
-    ['test', 56]
-  ]);
+  import { getRouterId, getRouterName } from '../../common/js/config';
 
   export default {
     name: 'page',
@@ -68,6 +63,9 @@
         } else {
           return '';
         }
+      },
+      isBookDetail () {
+        return this.$route.path.split('/').length === 4;
       }
     },
     watch: {
@@ -97,14 +95,10 @@
         return '';
       },
       getRouterPath (routerId) {
-        for (let key of ROUTER_MAP.keys()) {
-          if (ROUTER_MAP.get(key) === routerId) {
-            return `/${key}`;
-          }
-        }
+        return getRouterName(routerId);
       },
       getRouterId (path) {
-        return ROUTER_MAP.get(path);
+        return getRouterId(path);
       },
       getCategory (data) {
         let path = this.$route.path.split('/')[1];
@@ -123,8 +117,6 @@
         getPageInfo().then(res => {
           if (res.code === ERR_OK) {
             this.pageInfo = [...res.data];
-
-            console.log(this.pageInfo);
           }
         });
       }
@@ -188,7 +180,6 @@
     flex-wrap: wrap
     max-width: 960px
     margin: 0 auto
-    overflow-x: scroll
 
   .tab__item
     flex-shrink: 0
@@ -202,10 +193,4 @@
   @media (max-width: 768px)
     .logo
       font-size: 18px
-
-    .el-input
-      display: none
-
-    .tab
-      flex-wrap: nowrap
 </style>

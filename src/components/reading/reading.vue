@@ -1,6 +1,10 @@
 <template>
   <div class="reading">
     <div class="reading__hd">
+      <go-back></go-back>
+    </div>
+
+    <div class="reading__bd">
       <div class="reading-banner">
         <div class="swiper-container reading-swiper">
           <div class="swiper-wrapper">
@@ -16,8 +20,7 @@
           </div>
         </div>
       </div>
-    </div>
-    <div class="reading__bd">
+
       <!--<div v-if="book.content.sort === 1" class="reading__cover">-->
       <!--<div class="cover">-->
       <!--<div class="cover__hd">-->
@@ -56,9 +59,11 @@
 
   import Swiper from 'swiper';
   import 'swiper/dist/css/swiper.min.css';
+  import GoBack from '../../base/go-back/go-back';
 
   export default {
     name: 'reading',
+    components: {GoBack},
     props: {
       bookId: {
         type: String
@@ -105,8 +110,9 @@
       this._getBookCatalog(this.catalogId);
     },
     methods: {
-      initSwiper (swiperId, len) {
+      initSwiper (swiperId, len, speed = 300) {
         return new Swiper(swiperId, {
+          speed,
           loop: true,
           autoplay: true,
           loopedSlides: len,
@@ -165,7 +171,7 @@
 
             this.banners = [...res.data.ad];
             this.$nextTick(() => {
-              this.initSwiper('.reading-swiper', this.banners.length);
+              this.initSwiper('.reading-swiper', this.banners.length, this.banners[0].timeSpeed);
             });
           }
         });
@@ -201,9 +207,21 @@
     background: #e5e4db
 
   .reading__hd
-    margin-bottom: 20px
+    position: absolute
+    top: 0
+    right: 0
+    bottom: 0
+    left: 0
+    z-index: 200
+    display: none
+    height: 45px
+
+  .reading__bd
+    max-width: 960px
+    margin: 0 auto
 
   .reading-banner
+    margin-bottom: 20px
     .reading-swiper
       width: 100%
       .swiper-slide
@@ -211,10 +229,6 @@
         margin: 0 10px
         img
           width: 220px
-
-  .reading__bd
-    max-width: 960px
-    margin: 0 auto
 
   .reading__cover
     min-height: 600px
@@ -296,6 +310,12 @@
         border-left: 1px solid #d8d8d8
 
   @media (max-width: 768px)
+    .reading
+      padding-top: 45px
+
+    .reading__hd
+      display: block
+
     .reading__text
       padding: 16px
 

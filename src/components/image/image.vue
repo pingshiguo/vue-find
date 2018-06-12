@@ -38,7 +38,9 @@
               <div v-for="banner in banners"
                    :key="banner.id"
                    class="swiper-slide">
-                <a :href="banner.hyperlink">{{banner.resource}}</a>
+                <a :href="banner.hyperlink"
+                   :style="getBannerStyle(banner.color)"
+                   v-html="banner.resource"></a>
               </div>
             </div>
           </div>
@@ -53,6 +55,7 @@
 <script>
   import { getImages, searchImages } from '../../api/page';
   import { ERR_OK } from '../../api/config';
+  import { getRouterId } from '../../common/js/config';
 
   import Swiper from 'swiper';
   import 'swiper/dist/css/swiper.min.css';
@@ -72,6 +75,12 @@
         temImages: []
       };
     },
+    computed: {
+      routerId () {
+        let path = this.$route.path.split('/')[1];
+        return getRouterId(path);
+      }
+    },
     watch: {
       categoryId (categoryId) {
         if (categoryId) {
@@ -79,8 +88,12 @@
         }
       },
       searchValue (value) {
-        if (value === '' && this.temImages.length > 0) {
+        if (value.length > 0) return;
+
+        if (this.temImages.length > 0) {
           this.images = [...this.temImages];
+        } else {
+          this.images = [];
         }
       }
     },
@@ -89,29 +102,31 @@
     },
     mounted () {},
     methods: {
+      getBannerStyle (color) {
+        return `color: ${color};`;
+      },
       search () {
         if (!this.searchValue) {
           return;
         }
 
-        if (this.temImages.length === 0) {
-          this.temImages = [...this.images];
-        }
-
         this._searchImages(this.searchValue);
       },
-      initSwiper (swiperId) {
+      initSwiper (swiperId, speed = 300) {
         return new Swiper(swiperId, {
           direction: 'vertical',
+          speed,
           loop: true,
-          autoplay: true
+          autoplay: true,
+          observer: true,
+          observeParents: true
         });
       },
       selectGallery (galleryId) {
         this.$router.push(`/image/${this.categoryId}/${galleryId}`);
       },
       _searchImages (value) {
-        searchImages(value, this.categoryId).then(res => {
+        searchImages(value, this.routerId).then(res => {
           if (res.code === ERR_OK) {
             this.images = [...res.data.items];
           }
@@ -120,13 +135,14 @@
       _getImages (categoryId) {
         getImages(categoryId).then(res => {
           if (res.code === ERR_OK) {
-            this.images = [];
             this.images = [...res.data.items];
+            this.temImages = [...res.data.items];
             this.banners = [...res.data.ad];
 
             this.$nextTick(() => {
               for (let item of res.data.items) {
-                this.initSwiper(`.image-swiper-${item.id}`);
+                this.initSwiper(`.image-swiper-${item.id}`,
+                  this.banners[0].timeSpeed);
               }
             });
           }
@@ -187,21 +203,22 @@
     float: right
 
   .image-banner
-    padding: 0 8px
+    padding: 4px 8px
     .image-swiper
-      height: 24px
+      height: 36px
       overflow: hidden
       .swiper-slide
-        height: 24px
         a
-          display: inline-block
           width: 100%
-          line-height: 24px
-          font-size: 14px
+          line-height: 18px
+          font-size: 12px
           color: #666
-          white-space: nowrap
+          word-break: break-word
           text-overflow: ellipsis
           overflow: hidden
+          display: -webkit-box
+          -webkit-box-orient: vertical
+          -webkit-line-clamp: 2
 
   @media (max-width: 768px)
     .grid

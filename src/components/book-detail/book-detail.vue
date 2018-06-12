@@ -8,16 +8,17 @@
                class="media__thumb" alt="">
         </div>
         <div class="media__bd">
-          <h2 class="media__title">{{book.name}} <span>{{book.author}} 著</span>
+          <h2 class="media__title">
+            {{book.name}} <span>{{book.author}} 著</span>
           </h2>
           <!--<p class="book__tags">-->
-            <!--<el-tag size="medium" color="white">连载</el-tag>-->
-            <!--<el-tag size="medium" color="white">签约</el-tag>-->
-            <!--<el-tag size="medium" color="white">仙侠</el-tag>-->
-            <!--<el-tag size="medium" color="white">神话修真</el-tag>-->
+          <!--<el-tag size="medium" color="white">连载</el-tag>-->
+          <!--<el-tag size="medium" color="white">签约</el-tag>-->
+          <!--<el-tag size="medium" color="white">仙侠</el-tag>-->
+          <!--<el-tag size="medium" color="white">神话修真</el-tag>-->
           <!--</p>-->
           <!--<p class="media__meta">-->
-            <!--97.98万字|2139.89万总点击·会员周点击58.54万|678.8万总推荐·周10.26万-->
+          <!--97.98万字|2139.89万总点击·会员周点击58.54万|678.8万总推荐·周10.26万-->
           <!--</p>-->
           <div class="btn-area">
             <a href="javascript:;" class="btn" @click="selectItem()">免费试读</a>
@@ -223,6 +224,11 @@
 
     .media__hd
       margin: 0 auto 10px
+
+    .media__title
+      span
+        display: block
+        margin-left: 0
 
     .catalog-list__item
       width: 100%

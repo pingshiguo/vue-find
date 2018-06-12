@@ -17,21 +17,19 @@
 
   .go-back
     position: absolute
-    top: 50%
-    width: 90px
-    height: 90px
+    left: 0
+    z-index: 100
+    width: 45px
+    height: 45px
     cursor: pointer
-    transform: translateY(-50%)
-    &:after
+    &:before
       content: ''
       position: absolute
       top: 50%
-      left: 30px
-      width: 20px
-      height: 20px
-      border: 4px solid $color-text
-      border-right: 0
-      border-bottom: 0
-      transform-origin: 0 0
-      transform: rotate(-45deg)
+      left: 50%
+      width: 16px
+      height: 16px
+      border-top: 2px solid #fff
+      border-left: 2px solid #fff
+      transform: translate3d(-50%, -50%, 0) rotate(-45deg)
 </style>
