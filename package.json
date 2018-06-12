@@ -21,6 +21,7 @@
     "infinite-scroll": "^3.0.4",
     "masonry-layout": "^4.2.1",
     "qs": "^6.5.2",
+    "swiper": "^4.3.3",
     "video.js": "^7.0.3",
     "vue": "^2.5.2",
     "vue-router": "^3.0.1"

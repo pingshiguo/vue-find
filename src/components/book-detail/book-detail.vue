@@ -1,5 +1,5 @@
 <template>
-  <div v-loading="loading" class="book-detail">
+  <div class="book-detail">
     <div class="book__hd"></div>
     <div class="book__bd">
       <div class="media">
@@ -10,27 +10,23 @@
         <div class="media__bd">
           <h2 class="media__title">{{book.name}} <span>{{book.author}} 著</span>
           </h2>
-          <p class="book__tags">
-            <el-tag size="medium" color="white">连载</el-tag>
-            <el-tag size="medium" color="white">签约</el-tag>
-            <el-tag size="medium" color="white">仙侠</el-tag>
-            <el-tag size="medium" color="white">神话修真</el-tag>
-          </p>
-          <p class="media__meta">
-            97.98万字|2139.89万总点击·会员周点击58.54万|678.8万总推荐·周10.26万
-          </p>
+          <!--<p class="book__tags">-->
+            <!--<el-tag size="medium" color="white">连载</el-tag>-->
+            <!--<el-tag size="medium" color="white">签约</el-tag>-->
+            <!--<el-tag size="medium" color="white">仙侠</el-tag>-->
+            <!--<el-tag size="medium" color="white">神话修真</el-tag>-->
+          <!--</p>-->
+          <!--<p class="media__meta">-->
+            <!--97.98万字|2139.89万总点击·会员周点击58.54万|678.8万总推荐·周10.26万-->
+          <!--</p>-->
           <div class="btn-area">
-            <router-link :to="'/reading/' + bookId" class="btn">
-              免费试读
-            </router-link>
+            <a href="javascript:;" class="btn" @click="selectItem()">免费试读</a>
           </div>
         </div>
       </div>
 
       <h2 class="book__title">作品信息</h2>
-      <p class="book__intro">
-        {{book.fictionSynopsis}}
-      </p>
+      <div class="book__intro" v-html="book.fictionSynopsis"></div>
 
       <h2 class="book__title">章节目录</h2>
       <div class="catalog-container">
@@ -63,7 +59,6 @@
     },
     data () {
       return {
-        loading: true,
         book: {
           parentId: -1,
           id: -1,
@@ -75,19 +70,30 @@
         catalogList: []
       };
     },
+    watch: {
+      bookId (bookId) {
+        if (bookId) {
+          this._getBook(this.bookId);
+        }
+      }
+    },
     created () {
-      this._getBook(Number(this.bookId));
+      this._getBook(this.bookId);
     },
     methods: {
       selectItem (catalogId) {
-        this.$router.push(`/reading/${this.bookId}/${catalogId}`);
+        if (catalogId) {
+          this.$router.push(`/reading/${this.bookId}/${catalogId}`);
+        } else {
+          console.log(this.catalogList[0].id);
+          this.$router.push(`/reading/${this.bookId}/${this.catalogList[0].id}`);
+        }
       },
       _getBook (bookId) {
         getBook(bookId).then(res => {
           if (res.code === ERR_OK) {
-            this.loading = false;
-            Object.assign(this.book, res.data[0]);
-            this.catalogList = [...res.data];
+            Object.assign(this.book, res.data.items[0]);
+            this.catalogList = [...res.data.items];
           }
         });
       }
@@ -125,11 +131,10 @@
     margin-right: 20px
 
   .media__bd
-    flex: 1
     min-width: 0
 
   .media__thumb
-    width: 100%
+    width: 144px
 
   .media__title, .media__desc, .media__meta, .book__tags
     margin-bottom: 12px
@@ -210,4 +215,15 @@
     font-size: 14px
     color: #666
     cursor: pointer
+
+  @media (max-width: 768px)
+    .media
+      flex-direction: column
+      text-align: center
+
+    .media__hd
+      margin: 0 auto 10px
+
+    .catalog-list__item
+      width: 100%
 </style>

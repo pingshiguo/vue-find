@@ -19,18 +19,12 @@
                 </router-link>
               </div>
             </el-col>
-            <!--<el-col :sm="8">-->
-              <!--<el-input-->
-                <!--placeholder="搜索电影、小说">-->
-                <!--<i slot="prefix" class="el-input__icon el-icon-search"></i>-->
-              <!--</el-input>-->
-            <!--</el-col>-->
           </el-row>
         </div>
       </el-header>
-      <div v-if="category.length > 0" class="tab-wrapper">
+      <div v-if="getCategory(pageInfo).length > 0" class="tab-wrapper">
         <div class="tab">
-          <div v-for="item in category"
+          <div v-for="item in getCategory(pageInfo)"
                :key="item.id"
                class="tab__item"
                :class="getTabStyle(item.id)"
@@ -40,7 +34,7 @@
         </div>
       </div>
       <keep-alive>
-        <router-view @selectCategory="selectCategory"></router-view>
+        <router-view></router-view>
       </keep-alive>
     </el-container>
   </div>
@@ -53,7 +47,8 @@
   const ROUTER_MAP = new Map([
     ['image', 1],
     ['video', 4],
-    ['book', 10]
+    ['book', 10],
+    ['test', 56]
   ]);
 
   export default {
@@ -66,7 +61,23 @@
     },
     computed: {
       categoryId () {
-        return this.$route.query.category;
+        let path = this.$route.path.split('/');
+
+        if (path.length > 2) {
+          return Number(path[2]);
+        } else {
+          return '';
+        }
+      }
+    },
+    watch: {
+      category (category) {
+        if (this.$route.path === '/image' || this.$route.path === '/video' ||
+          this.$route.path === '/book') {
+          if (!this.categoryId) {
+            this.$router.replace(`${this.$route.path}/${category[0].id}`);
+          }
+        }
       }
     },
     created () {
@@ -75,14 +86,11 @@
     mounted () {},
     methods: {
       selectCategory (categoryId) {
-        if (!categoryId) {
-          categoryId = this.category[0].id;
-        }
-
-        this.$router.push(`${this.$route.path}?category=${categoryId}`);
+        let path = this.$route.path.split('/')[1];
+        this.$router.push(`/${path}/${categoryId}`);
       },
       getTabStyle (categoryId) {
-        if (Number(this.categoryId) === categoryId) {
+        if (this.categoryId === categoryId) {
           return 'active';
         }
 
@@ -104,16 +112,17 @@
 
         for (let item of data) {
           if (item.id === routerId) {
-            this.category = item.items;
-            return;
+            this.category = [...item.items];
+            return item.items;
           }
         }
+
+        return [];
       },
       _getPageInfo () {
         getPageInfo().then(res => {
           if (res.code === ERR_OK) {
             this.pageInfo = [...res.data];
-            this.getCategory([...res.data]);
 
             console.log(this.pageInfo);
           }

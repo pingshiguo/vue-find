@@ -23,6 +23,19 @@ export function getImages (categoryId) {
   });
 }
 
+export function searchImages (value, categoryId) {
+  const url = '/nrClassifyShowResource/listsPicture';
+
+  return axios.get(url, {
+    params: {
+      name: value,
+      classifyShowId: categoryId
+    }
+  }).then(res => {
+    return Promise.resolve(res.data);
+  });
+}
+
 export function getVideos (categoryId) {
   const url = '/nrClassifyShowResource/listsVideo';
 
@@ -35,11 +48,37 @@ export function getVideos (categoryId) {
   });
 }
 
-export function getBooks (categoryId) {
-  const url = '/nrClassifyShowResource//listsFiction';
+export function searchVideos (value, categoryId) {
+  const url = '/nrClassifyShowResource/listsVideo';
 
   return axios.get(url, {
     params: {
+      name: value,
+      classifyShowId: categoryId
+    }
+  }).then(res => {
+    return Promise.resolve(res.data);
+  });
+}
+
+export function getBooks (categoryId) {
+  const url = '/nrClassifyShowResource/listsFiction';
+
+  return axios.get(url, {
+    params: {
+      classifyShowId: categoryId
+    }
+  }).then(res => {
+    return Promise.resolve(res.data);
+  });
+}
+
+export function searchBooks (value, categoryId) {
+  const url = '/nrClassifyShowResource/listsFiction';
+
+  return axios.get(url, {
+    params: {
+      name: value,
       classifyShowId: categoryId
     }
   }).then(res => {
@@ -100,8 +139,8 @@ export function goPreCatalog (bookId, catalogId) {
 
   return axios.get(url, {
     params: {
-      id: bookId,
-      classifyShowResourceId: catalogId
+      classifyShowResourceId: bookId,
+      id: catalogId
     }
   }).then(res => {
     return Promise.resolve(res.data);
@@ -113,8 +152,8 @@ export function goNextCatalog (bookId, catalogId) {
 
   return axios.get(url, {
     params: {
-      id: bookId,
-      classifyShowResourceId: catalogId
+      classifyShowResourceId: bookId,
+      id: catalogId
     }
   }).then(res => {
     return Promise.resolve(res.data);

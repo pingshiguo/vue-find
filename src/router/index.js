@@ -59,9 +59,9 @@ export default new Router({
       redirect: '/image',
       children: [
         {
-          path: 'image',
+          path: 'image/:categoryId',
           component: Image,
-          props: (route) => ({categoryId: route.query.category}),
+          props: true,
           children: [
             {
               path: ':galleryId',
@@ -71,14 +71,9 @@ export default new Router({
           ]
         },
         {
-          path: 'image/category/:categoryId',
-          component: Image,
-          props: true
-        },
-        {
-          path: 'video',
+          path: 'video/:categoryId',
           component: Video,
-          props: (route) => ({categoryId: route.query.category}),
+          props: true,
           children: [
             {
               path: ':videoId',
@@ -88,19 +83,9 @@ export default new Router({
           ]
         },
         {
-          path: 'video/category/:categoryId',
-          component: Video,
-          props: true
-        },
-        {
-          path: 'book/category/:categoryId',
+          path: 'book/:categoryId',
           component: Book,
-          props: true
-        },
-        {
-          path: 'book',
-          component: Book,
-          props: (route) => ({categoryId: route.query.category}),
+          props: true,
           children: [
             {
               path: ':bookId',
@@ -109,6 +94,62 @@ export default new Router({
             }
           ]
         },
+
+        // {
+        //   path: 'image',
+        //   component: Image,
+        //   children: [
+        //     {
+        //       path: ':categoryId',
+        //       component: Image,
+        //       props: true,
+        //       children: [
+        //         {
+        //           path: ':galleryId',
+        //           component: Gallery,
+        //           props: true
+        //         }
+        //       ]
+        //     }
+        //   ]
+        // },
+        // {
+        //   path: 'video',
+        //   component: Video,
+        //   children: [
+        //     {
+        //       path: ':categoryId',
+        //       component: Video,
+        //       props: true,
+        //       children: [
+        //         {
+        //           path: ':videoId',
+        //           component: VideoPlayer,
+        //           props: true
+        //         }
+        //       ]
+        //     }
+        //   ]
+        // },
+        // {
+        //   path: 'book',
+        //   component: Book,
+        //   children: [
+        //     {
+        //       path: ':categoryId',
+        //       component: Book,
+        //       props: true,
+        //       children: [
+        //         {
+        //           path: ':bookId',
+        //           component: BookDetail,
+        //           props: true
+        //         }
+        //       ]
+        //     }
+        //   ]
+        // },
+
         {
           path: 'reading/:bookId',
           component: Reading,
@@ -121,7 +162,58 @@ export default new Router({
             }
           ]
         }
+
+        // {
+        //   path: 'image',
+        //   component: Image,
+        //   props: (route) => ({categoryId: route.query.category}),
+        //   children: [
+        //     {
+        //       path: ':galleryId',
+        //       component: Gallery,
+        //       props: true
+        //     }
+        //   ]
+        // },
+        // {
+        //   path: 'video',
+        //   component: Video,
+        //   props: (route) => ({categoryId: route.query.category}),
+        //   children: [
+        //     {
+        //       path: ':videoId',
+        //       component: VideoPlayer,
+        //       props: true
+        //     }
+        //   ]
+        // },
+        // {
+        //   path: 'video/category/:categoryId',
+        //   component: Video,
+        //   props: true
+        // },
+        // {
+        //   path: 'book/category/:categoryId',
+        //   component: Book,
+        //   props: true
+        // },
+        // {
+        //   path: 'book',
+        //   component: Book,
+        //   props: (route) => ({categoryId: route.query.category}),
+        //   children: [
+        //     {
+        //       path: ':bookId',
+        //       component: BookDetail,
+        //       props: true
+        //     }
+        //   ]
+        // }
       ]
+    },
+    {
+      path: '*',
+      component: Page
     }
   ]
 });

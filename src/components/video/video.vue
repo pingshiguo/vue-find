@@ -1,16 +1,34 @@
 <template>
-  <el-main v-loading="loading">
-    <div ref="container" class="el-grid-container">
-      <div v-for="item in videos"
-           :key="item.id"
-           class="el-grid-wrapper">
-        <div class="el-grid" @click="selectVideo(item.id)">
-          <div class="el-grid__icon">
+  <el-main>
+    <div class="search-wrapper"
+         @keyup.enter="search">
+      <el-input
+        placeholder="搜索视频"
+        :clearable="true"
+        v-model.lazy.trim="searchValue"
+        class="input-with-select">
+        <el-button
+          slot="append"
+          icon="el-icon-search"
+          @click="search"></el-button>
+      </el-input>
+    </div>
+
+    <transition-group
+      name="slide-up"
+      tag="div"
+      class="grid-container">
+      <div
+        v-for="item in videos"
+        :key="item.id"
+        class="grid-wrapper">
+        <div class="grid" @click="selectVideo(item.id)">
+          <div class="grid__icon">
             <img :src="item.logoPic" :alt="item.name">
           </div>
-          <p class="el-grid__title">{{item.name}}</p>
-          <p class="el-grid__desc">{{item.fictionSynopsis}}</p>
-          <!--<p class="el-grid__meta">-->
+          <p class="grid__title">{{item.name}}</p>
+          <p class="grid__desc">{{item.fictionSynopsis}}</p>
+          <!--<p class="grid__meta">-->
           <!--<el-rate-->
           <!--v-model="item.rate"-->
           <!--disabled-->
@@ -20,15 +38,31 @@
           <!--</el-rate>-->
           <!--</p>-->
         </div>
+
+        <div v-if="banners" class="video-banner">
+          <div class="swiper-container video-swiper"
+               :class="'video-swiper-' + item.id">
+            <div class="swiper-wrapper">
+              <div v-for="banner in banners"
+                   :key="banner.id"
+                   class="swiper-slide">
+                <a :href="banner.hyperlink">{{banner.resource}}</a>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
+    </transition-group>
     <router-view></router-view>
   </el-main>
 </template>
 
 <script>
-  import { getVideos } from '../../api/page';
+  import { getVideos, searchVideos } from '../../api/page';
   import { ERR_OK } from '../../api/config';
+
+  import Swiper from 'swiper';
+  import 'swiper/dist/css/swiper.min.css';
 
   export default {
     name: 'page-video',
@@ -39,37 +73,70 @@
     },
     data () {
       return {
-        loading: true,
-        videos: []
+        videos: [],
+        banners: [],
+        searchValue: '',
+        temVideos: []
       };
     },
-    // watch: {
-    //   categoryId (categoryId) {
-    //     if (categoryId) {
-    //       this._getVideos(this.categoryId);
-    //     }
-    //   }
-    // },
-    created () {
-      if (!this.categoryId) {
-        this.$emit('selectCategory');
+    watch: {
+      categoryId (categoryId) {
+        if (categoryId) {
+          this._getVideos(this.categoryId);
+        }
+      },
+      searchValue (value) {
+        if (value === '' && this.temVideos.length > 0) {
+          this.videos = [...this.temVideos];
+        }
       }
-
+    },
+    created () {
       this._getVideos(this.categoryId);
     },
-    mounted () {},
+    mounted () {
+      console.log('mounted');
+    },
     methods: {
+      search () {
+        if (!this.searchValue) {
+          return;
+        }
+
+        if (this.temVideos.length === 0) {
+          this.temVideos = [...this.videos];
+        }
+
+        this._searchVideos(this.searchValue);
+      },
+      initSwiper (swiperId) {
+        return new Swiper(swiperId, {
+          direction: 'vertical',
+          loop: true,
+          autoplay: true
+        });
+      },
       selectVideo (videoId) {
-        this.$router.push(`video/${videoId}`);
+        this.$router.push(`/video/${this.categoryId}/${videoId}`);
+      },
+      _searchVideos (value) {
+        searchVideos(value, this.categoryId).then(res => {
+          if (res.code === ERR_OK) {
+            this.videos = res.data.items;
+          }
+        });
       },
       _getVideos (categoryId) {
         getVideos(categoryId).then(res => {
           if (res.code === ERR_OK) {
-            this.loading = false;
+            this.videos = [...res.data.items];
+            this.banners = [...res.data.ad];
 
-            this.videos = [...res.data];
-
-            console.log(this.videos);
+            this.$nextTick(() => {
+              for (let item of res.data.items) {
+                this.initSwiper(`.video-swiper-${item.id}`);
+              }
+            });
           }
         });
       }
@@ -80,17 +147,28 @@
 <style lang="stylus" rel="stylesheet/stylus" scoped>
   @import "~common/stylus/variable"
 
-  .el-grid-container
+  .slide-up-enter, slide-up-leave-to
+    opacity: 0
+    transform: translateY(100%)
+
+  .slide-up-enter-active, .slide-up-leave-active
+    transition: all .3s ease-in-out
+
+  .search-wrapper
+    max-width: 960px
+    margin: 0 auto 20px
+
+  .grid-container
     max-width: 960px
     margin: 0 auto
     font-size: 0
 
-  .el-grid-wrapper
+  .grid-wrapper
     display: inline-block
     width: 20%
     padding: 0 10px 10px
 
-  .el-grid
+  .grid
     position: relative
     padding-bottom: 8px
     box-shadow: 0 0 5px rgba(0, 0, 0, .5)
@@ -98,38 +176,59 @@
     background: #fff
     cursor: pointer
 
-  .el-grid__icon
+  .grid__icon
+    overflow: hidden
     img
       width: 100%
+      transition: all .3s ease-out
+      &:hover
+        transform: scale(1.1)
 
-  .el-grid__title
+  .grid__title
     padding: 8px 16px
     line-height: 20px
     font-size: 16px
     color: $color-text-dark
 
-  .el-grid__desc, .el-grid__meta
+  .grid__desc, .grid__meta
     padding: 0 16px
     line-height: 18px
     font-size: 14px
     color: $color-text-light
 
-  .el-grid__desc
+  .grid__desc
     display: -webkit-box
     -webkit-box-orient: vertical
     -webkit-line-clamp: 2
     text-overflow: ellipsis
     overflow: hidden
 
+  .video-banner
+    padding: 0 8px
+    .video-swiper
+      height: 24px
+      overflow: hidden
+      .swiper-slide
+        height: 24px
+        a
+          display: inline-block
+          width: 100%
+          line-height: 24px
+          font-size: 14px
+          color: #666
+          white-space: nowrap
+          text-overflow: ellipsis
+          overflow: hidden
+
   @media (max-width: 1200px)
-    .el-grid-wrapper
+    .grid-wrapper
       width: 25%
 
   @media (max-width: 768px)
-    .el-grid-wrapper
+    .grid-wrapper
       width: 50%
 
   @media (max-width: 320px)
-    .el-grid-wrapper
+    .grid-wrapper
       width: 100%
 </style>
