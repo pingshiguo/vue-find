@@ -143,6 +143,8 @@
     top: 0
     right: 0
     left: 0
+    height: 108px
+    overflow: hidden
     .gallery-swiper
       width: 100%
       .swiper-wrapper
@@ -152,6 +154,7 @@
           margin: 0 10px
           img
             width: 220px
+            max-height: 88px
 
   .gallery__img
     position: absolute
@@ -159,7 +162,8 @@
     right: 0
     bottom: 0
     left: 0
-    margin: 45px 0
+    z-index: 9999
+    margin: 108px auto
     background: center center no-repeat
     background-size: contain
     opacity: 0

@@ -6,7 +6,9 @@
           <el-row :gutter="20">
             <el-col :xs="6" :sm="4">
               <router-link to="/" class="logo-wrapper">
-                <h1 class="logo">发现</h1>
+                <h1 class="logo">
+                  <img src="../../assets/logo.svg" title="logo" alt="logo">
+                </h1>
               </router-link>
             </el-col>
             <el-col :xs="18" :sm="20">
@@ -152,8 +154,10 @@
     display: inline-block
 
   .logo
-    line-height: 40px
-    color: $color-text-dark
+    height: 40px
+    img
+      width: 100%
+      max-height: 40px
 
   .nav
     display: flex

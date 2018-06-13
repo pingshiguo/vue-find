@@ -4,7 +4,7 @@
       <go-back></go-back>
     </div>
 
-    <div class="player-banner">
+    <div v-if="banners.length > 0" class="player-banner">
       <div class="swiper-container player-swiper">
         <div class="swiper-wrapper">
           <a v-for="item in banners"
@@ -115,7 +115,7 @@
     left: 0
     z-index: 100
     padding: 20px
-    overflow: auto
+    overflow-y: auto
     -webkit-overflow-scrolling: touch
     background: #999
 
@@ -123,21 +123,15 @@
     position: absolute
     top: 0
     right: 0
-    boottom: 0
     left: 0
     z-index: 200
     display: none
     height: 45px
 
   .player-banner
-    position: absolute
-    right: 0
-    bottom: 0
-    left: 0
     .player-swiper
       width: 100%
       .swiper-wrapper
-        padding: 10px
         .swiper-slide
           width: 220px
           margin: 0 10px
@@ -147,8 +141,7 @@
   .video-player__bd
     display: flex
     max-width: 960px
-    height: 100%
-    margin: auto
+    margin: 40px auto 0
 
   .video-container
     position: relative
@@ -162,6 +155,9 @@
     flex: 1
     video
       width: 100%
+      max-width: 854px
+      max-height: 480px
+      margin: auto
 
   .video-list-wrapper
     background: #fff
@@ -188,6 +184,9 @@
       color: #333
 
   @media (max-width: 768px)
+    .video-player
+      padding-top: 45px
+
     .video-player__hd
       display: block
 
