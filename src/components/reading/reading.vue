@@ -201,10 +201,8 @@
     left: 0
     bottom: 0
     z-index: 100
-    padding: 20px
-    overflow: auto
-    -webkit-overflow-scrolling: touch
     background: #e5e4db
+    overflow: hidden
 
   .reading__hd
     position: absolute
@@ -215,10 +213,15 @@
     z-index: 200
     display: none
     height: 45px
+    background: #e5e4db
 
   .reading__bd
     max-width: 960px
+    height: 100%
+    padding: 20px
     margin: 0 auto
+    overflow-y: auto
+    -webkit-overflow-scrolling: touch
 
   .reading-banner
     margin-bottom: 20px
@@ -310,11 +313,11 @@
         border-left: 1px solid #d8d8d8
 
   @media (max-width: 768px)
-    .reading
-      padding-top: 45px
-
     .reading__hd
       display: block
+
+    .reading__bd
+      padding-top: 45px
 
     .reading__text
       padding: 16px

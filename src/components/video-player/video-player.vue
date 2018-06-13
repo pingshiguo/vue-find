@@ -131,8 +131,8 @@
 
   .player-banner
     position: absolute
-    top: 0
     right: 0
+    bottom: 0
     left: 0
     .player-swiper
       width: 100%
@@ -165,13 +165,16 @@
 
   .video-list-wrapper
     background: #fff
-    overflow-y: auto
 
   .video-list__title
     padding: 0 8px
     line-height: 36px
     font-size: 16px
     color: #666
+
+  .video-list
+    max-height: 384px
+    overflow-y: auto
 
   .video-list__item
     min-width: 120px
@@ -188,12 +191,12 @@
     .video-player__hd
       display: block
 
-    .player-banner
-      top: 45px
-
     .video-container
       flex-direction: column
 
     .video-list-wrapper
       margin-top: 16px
+
+    .video-list
+      max-height: 100px
 </style>
