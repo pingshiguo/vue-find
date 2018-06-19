@@ -20,6 +20,8 @@
                   class="nav__item">
                   {{item.name}}
                 </router-link>
+
+                <a href="javascript:;" class="nav__item" @click="goForum">论坛</a>
               </div>
             </el-col>
           </el-row>
@@ -85,6 +87,9 @@
     },
     mounted () {},
     methods: {
+      goForum () {
+        window.location.href = window.location.pathname + 'webForum';
+      },
       selectCategory (categoryId) {
         let path = this.$route.path.split('/')[1];
         this.$router.push(`/${path}/${categoryId}`);
@@ -171,7 +176,8 @@
       color: #333
 
   .nav__item
-    padding: 0 16px
+    padding: 0 8px
+    font-size: 16px
     line-height: 40px
 
   .tab-wrapper

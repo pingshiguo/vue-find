@@ -1,7 +1,9 @@
 import axios from 'axios';
-import { HOST, PORT } from './config';
+import { HREF } from './config';
 
-axios.defaults.baseURL = `${HOST}:${PORT}`;
+axios.defaults.baseURL = `${HREF}`;
+
+// axios.defaults.baseURL = `${HOST}:${PORT}`;
 
 export function getPageInfo () {
   const url = '/nrClassifyShow/lists';

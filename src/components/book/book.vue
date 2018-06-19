@@ -244,4 +244,12 @@
     .media-container
       .media-wrapper
         width: 100%
+        .media
+          .media__bd
+            .media__title
+              line-height: 22px
+              font-size: 16px
+            .media__desc
+              line-height: 18px
+              font-size: 14px
 </style>
